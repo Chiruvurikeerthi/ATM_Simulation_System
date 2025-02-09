@@ -1,0 +1,114 @@
+import datetime
+
+class Account:
+    def __init__(self, account_number, pin, balance=0):
+        self.account_number = account_number
+        self.pin = pin
+        self.balance = balance
+        self.transaction_history = []
+
+    def deposit(self, amount):
+        if amount > 0:
+            self.balance += amount
+            self.transaction_history.append(f"{datetime.datetime.now()} - Deposited: ${amount}")
+            print(f"Deposit successful! New balance: ${self.balance}")
+        else:
+            print("Invalid deposit amount.")
+
+    def withdraw(self, amount):
+        if 0 < amount <= self.balance:
+            self.balance -= amount
+            self.transaction_history.append(f"{datetime.datetime.now()} - Withdrawn: ${amount}")
+            print(f"Withdrawal successful! Remaining balance: ${self.balance}")
+        else:
+            print("Insufficient balance or invalid amount.")
+
+    def check_balance(self):
+        print(f"Current balance: ${self.balance}")
+
+    def view_transaction_history(self):
+        print("\nTransaction History:")
+        for transaction in self.transaction_history:
+            print(transaction)
+
+class ATM:
+    def __init__(self):
+        self.accounts = {}
+
+    def create_account(self, account_number, pin, initial_balance=0):
+        if account_number in self.accounts:
+            print("Account already exists.")
+        else:
+            self.accounts[account_number] = Account(account_number, pin, initial_balance)
+            print("Account created successfully!")
+
+    def authenticate_user(self, account_number, pin):
+        account = self.accounts.get(account_number)
+        if account and account.pin == pin:
+            print("Login successful!")
+            return account
+        else:
+            print("Invalid account number or PIN.")
+            return None
+
+    def start(self):
+        while True:
+            print("\n1. Create Account\n2. Login\n3. Exit")
+            choice = input("Select an option: ")
+
+            if choice == "1":
+                acc_num = input("Enter a new account number: ")
+                pin = input("Set a 4-digit PIN: ")
+                try:
+                    initial_balance = float(input("Enter initial deposit amount: "))
+                    self.create_account(acc_num, pin, initial_balance)
+                except ValueError:
+                    print("Invalid amount. Please enter a numeric value.")
+
+            elif choice == "2":
+                acc_num = input("Enter account number: ")
+                pin = input("Enter PIN: ")
+                account = self.authenticate_user(acc_num, pin)
+
+                if account:
+                    while True:
+                        print("\n1. Deposit\n2. Withdraw\n3. Check Balance\n4. View Transactions\n5. Logout")
+                        user_choice = input("Select an option: ")
+
+                        if user_choice == "1":
+                            try:
+                                amount = float(input("Enter deposit amount: "))
+                                account.deposit(amount)
+                            except ValueError:
+                                print("Invalid amount. Please enter a numeric value.")
+
+                        elif user_choice == "2":
+                            try:
+                                amount = float(input("Enter withdrawal amount: "))
+                                account.withdraw(amount)
+                            except ValueError:
+                                print("Invalid amount. Please enter a numeric value.")
+
+                        elif user_choice == "3":
+                            account.check_balance()
+
+                        elif user_choice == "4":
+                            account.view_transaction_history()
+
+                        elif user_choice == "5":
+                            print("Logging out...")
+                            break
+
+                        else:
+                            print("Invalid choice. Try again.")
+
+            elif choice == "3":
+                print("Thank you for using the ATM. Goodbye!")
+                break
+
+            else:
+                print("Invalid option. Try again.")
+
+if __name__ == "__main__":
+    atm = ATM()
+    atm.start()
